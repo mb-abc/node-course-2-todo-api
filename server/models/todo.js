@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var Todo = mongoose.model('Todo', {
+var schema = new mongoose.Schema({
   text: {
     type: String,
     required: true,
@@ -16,5 +16,8 @@ var Todo = mongoose.model('Todo', {
     default: null
   }
 });
+//schema.set('toObject', { getters: true });
+
+var Todo = mongoose.model('Todo', schema);
 
 module.exports = {Todo};
