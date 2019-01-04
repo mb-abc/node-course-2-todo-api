@@ -5,10 +5,10 @@ const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
 const todos = [ {
-    _id: new ObjectID(),
+    _id: new ObjectID('5c2f20d67e42cd424c57ec3f'),
     text: 'First test todo'
 }, {
-    _id: new ObjectID(),
+    _id: new ObjectID('5c2f201f9f98a5073c70d394'),
     text: 'Second test todo'
 }];
 
@@ -17,7 +17,7 @@ beforeEach((done) => {
         return Todo.insertMany(todos);
     }).then(() => done());
   });
-  
+
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -99,4 +99,45 @@ describe('GET /todos/:id', () => {
             .expect(404)
             .end(done);
     });
+});
+
+describe('DELETE /todos/:id', () => {
+  it('should remove a todo', (done) => {
+    var hexId = todos[1]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.n).toBe(1);
+        expect(res.body.ok).toBe(1);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        Todo.findById(hexId).then((todo) => {
+          expect(todo).toNotExist();
+          done();
+        }).catch((e) => done(e));
+
+      });
+  });
+
+  it('should return 404 if todo not found', (done) => {
+    var hexId = new ObjectID().toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 if ObjectID is invalid', (done) => {
+    request(app)
+      .delete('/todos/123abc')
+      .expect(404)
+      .end(done);
+  });
 });

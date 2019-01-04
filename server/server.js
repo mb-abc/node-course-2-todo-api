@@ -39,12 +39,15 @@ app.delete('/todos/:id', (req, res) => {
 
   Todo.remove({
       _id: new ObjectID(id)
-    }).then((todo) => {
-      if (!todo) {
+    }).then((result) => {
+      console.log(result);
+      if (!result) {
           return res.status(404).send();
+      } else if (result.n === 0 || result.ok !== 1) {
+        return res.status(404).send();
       }
 
-      res.status(200).send(todo);
+      res.status(200).send(result);
     }).catch((e) => {
       res.status(400).send();
     });
